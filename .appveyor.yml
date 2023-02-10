@@ -14,4 +14,3 @@ install:
 build_script:
   - chmod +x gradlew
   - ./gradlew test --info
-  - google-chrome --version # команда для поиска chromedriver
