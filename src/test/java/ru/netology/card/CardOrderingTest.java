@@ -48,8 +48,7 @@ public class CardOrderingTest {
         assertEquals(expected, actual);
     }
 
-    @ParameterizedTest
-    @CsvFileSource (files="src/test/resources/data_negative.csv", numLinesToSkip = 1, delimiter = '|')
+    @Test
     void shouldCardFormInvalidName() {
         driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Smith John"); // Имя набрано латиницей
         driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79651234567");
@@ -58,6 +57,18 @@ public class CardOrderingTest {
 
         String expected = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
         String actual = driver.findElement(By.cssSelector("[data-test-id=name].input_invalid .input__sub")).getText().trim();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldCardFormInvalidPhone() {
+        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Смит Джон");
+        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+796512345O7"); // В номере телефона вместо 0 написано O
+        driver.findElement(By.className("button")).click();
+
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        String actual = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText().trim();
 
         assertEquals(expected, actual);
     }
