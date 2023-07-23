@@ -1,115 +1,78 @@
 package ru.netology.card;
 
+import com.codeborne.selenide.ElementsCollection;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import io.github.bonigarcia.wdm.WebDriverManager;
+
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selenide.*;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class CardOrderingTest {
-    private WebDriver driver;
-
-    @BeforeAll
-    static void setUpAll() {
-        WebDriverManager.chromedriver().setup();
-    }
 
     @BeforeEach
     void setUp() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
-        driver = new ChromeDriver(options);
-        driver.get("http://localhost:9999");
-    }
-
-    @AfterEach
-    void tearDown() {
-        driver.quit();
-        driver = null;
+       open("http://localhost:9999");
     }
 
     @ParameterizedTest
     @CsvFileSource (files="src/test/resources/data_positive.csv", numLinesToSkip = 1, delimiter = '|')
     void shouldCardForm(String name, String phone, String expected) {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys(name);
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys(phone);
-        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=name] input").sendKeys(name);
+        $("[data-test-id=phone] input").sendKeys(phone);
+        $("[data-test-id=agreement]").click();
+        $("button").click();
 
-        String actual = driver.findElement(By.cssSelector("[data-test-id=order-success]")).getText().trim();
-
-        assertEquals(expected, actual);
+        $("[data-test-id=order-success]").shouldHave(exactText(expected));
     }
 
     @Test
     void shouldCardFormInvalidName() {
-        List<WebElement> elements = driver.findElements(By.className("input__control"));
+        ElementsCollection elements = $$(".input__control");
         elements.get(0).sendKeys("Smith John"); // Имя набрано латиницей
         elements.get(1).sendKeys("+79651234567");
-        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=agreement]").click();
+        $("button").click();
 
-        String expected = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
-        String actual = driver.findElement(By.cssSelector("[data-test-id=name].input_invalid .input__sub")).getText().trim();
-
-        assertEquals(expected, actual);
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
     }
 
     @Test
     void shouldCardFormInvalidPhone() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Смит Джон");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+796512345O7"); // В номере телефона вместо 0 написано O
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=name] input").sendKeys("Смит Джон");
+        $("[data-test-id=phone] input").sendKeys("+796512345O7"); // В номере телефона вместо 0 написано O
+        $("button").click();
 
-        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
-        String actual = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText().trim();
-
-        assertEquals(expected, actual);
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
     }
 
     @Test
     void shouldCardFormWithoutName() { // В заявке отсутствует имя
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79651234567");
-        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=phone] input").sendKeys("+79651234567");
+        $("[data-test-id=agreement]").click();
+        $("button").click();
 
-        String expected = "Поле обязательно для заполнения";
-        String actual = driver.findElement(By.cssSelector("[data-test-id=name].input_invalid .input__sub")).getText().trim();
-
-        assertEquals(expected, actual);
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
     }
 
     @Test
     void shouldCardFormWithoutPhone() { // В заявке отсутствует номер телефона
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Смит Джон");
-        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=name] input").sendKeys("Смит Джон");
+        $("[data-test-id=agreement]").click();
+        $("button").click();
 
-        String expected = "Поле обязательно для заполнения";
-        String actual = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText().trim();
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
 
-        assertEquals(expected, actual);
     }
 
     @Test
     void shouldCardFormWithoutCheckbox() { // В заявке не проставлен чек-бокс
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Смит Джон");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79651234567");
-        driver.findElement(By.className("button")).click();
+        $("[data-test-id=name] input").sendKeys("Смит Джон");
+        $("[data-test-id=phone] input").sendKeys("+79651234567");
+        $("button").click();
 
-        String expected = "Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй";
-        String actual = driver.findElement(By.cssSelector("[data-test-id=agreement].input_invalid .checkbox__text")).getText().trim();
-
-        assertEquals(expected, actual);
+        $("[data-test-id=agreement].input_invalid .checkbox__text").shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй"));
     }
 }
