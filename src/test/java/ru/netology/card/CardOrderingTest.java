@@ -52,7 +52,7 @@ public class CardOrderingTest {
     }
 
     @Test
-    void  () {
+    void shouldCardFormInvalidName() {
         List<WebElement> elements = driver.findElements(By.className("input__control"));
         elements.get(0).sendKeys("Smith John"); // Имя набрано латиницей
         elements.get(1).sendKeys("+79651234567");
