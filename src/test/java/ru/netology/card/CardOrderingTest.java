@@ -5,9 +5,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,9 +52,10 @@ public class CardOrderingTest {
     }
 
     @Test
-    void shouldCardFormInvalidName() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Smith John"); // Имя набрано латиницей
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79651234567");
+    void  () {
+        List<WebElement> elements = driver.findElements(By.className("input__control"));
+        elements.get(0).sendKeys("Smith John"); // Имя набрано латиницей
+        elements.get(1).sendKeys("+79651234567");
         driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
         driver.findElement(By.className("button")).click();
 
