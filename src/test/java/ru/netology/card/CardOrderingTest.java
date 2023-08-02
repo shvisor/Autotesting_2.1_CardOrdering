@@ -12,11 +12,11 @@ public class CardOrderingTest {
 
     @BeforeEach
     void setUp() {
-       open("http://localhost:9999");
+        open("http://localhost:9999");
     }
 
     @ParameterizedTest
-    @CsvFileSource (files="src/test/resources/data_positive.csv", numLinesToSkip = 1, delimiter = '|')
+    @CsvFileSource(files = "src/test/resources/data_positive.csv", numLinesToSkip = 1, delimiter = '|')
     void shouldCardForm(String name, String phone, String expected) {
         $("[data-test-id=name] input").sendKeys(name);
         $("[data-test-id=phone] input").sendKeys(phone);
