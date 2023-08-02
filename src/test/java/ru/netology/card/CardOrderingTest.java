@@ -1,5 +1,6 @@
 package ru.netology.card;
 
+import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +13,7 @@ public class CardOrderingTest {
 
     @BeforeEach
     void setUp() {
+        Configuration.headless = true;
         open("http://localhost:9999");
     }
 
